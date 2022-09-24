@@ -13,6 +13,7 @@ export class AwsEcsTriggeredTaskAlertsStack extends Stack {
 
     const cluster = new Cluster(this, 'Cluster', {
       clusterName: 'fargate-cluster-example',
+      containerInsights: false,
       enableFargateCapacityProviders: true,
     });
 
@@ -46,7 +47,7 @@ export class AwsEcsTriggeredTaskAlertsStack extends Stack {
     new ScheduledFargateTask(this, 'ScheduledFargateTask', {
       cluster,
       scheduledFargateTaskDefinitionOptions: { taskDefinition },
-      schedule: Schedule.cron({ minute: '0/30' }), // trigger task every half an hour
+      schedule: Schedule.cron({ minute: '0/1' }), // trigger task every minute
       platformVersion: FargatePlatformVersion.LATEST,
     });
 
