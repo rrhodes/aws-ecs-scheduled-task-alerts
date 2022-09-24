@@ -9,5 +9,4 @@ cdk.out
 jest.config.js
 lib
 README.md
-test
 tsconfig.json
