@@ -12,6 +12,7 @@ export class AwsEcsTriggeredTaskAlertsStack extends Stack {
 
     const cluster = new Cluster(this, 'Cluster', {
       clusterName: 'fargate-cluster-example',
+      containerInsights: true,
       enableFargateCapacityProviders: true,
     });
 
