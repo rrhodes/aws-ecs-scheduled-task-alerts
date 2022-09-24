@@ -19,7 +19,7 @@ The email address for the SNS subscription is configured using env var `ALERT_EM
 
 This setup automatically invokes the ECS Fargate task periodically - set to every minute at the time of writing. Whenever the container exits with a [common failure code](https://aws.amazon.com/premiumsupport/knowledge-center/ecs-task-stopped/), email will be broadcasted to whichever address is set using env var `ALERT_EMAIL_ADDRESS`.
 
-> Note: remember to tear down the infrastructure or disable the task invocation EventBridge rule when this is not actively in use! Otherwise tasks will repeatedly spin up, and SNS will pollute your email inbox with task failure notifications.
+**Remember to tear down the infrastructure or disable the task invocation EventBridge rule when this is not actively in use!** Otherwise tasks will repeatedly spin up, and SNS will pollute your email inbox with task failure notifications.
 
 ## Development
 
