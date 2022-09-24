@@ -6,7 +6,7 @@ const main = () => {
   if (randomBoolean) {
     console.log('I\'m alive!')
   } else {
-    const message = `Send help!`;
+    const message = 'Send help!';
     console.error(message)
     throw Error(message);
   }
