@@ -4,6 +4,7 @@ import { Schedule } from 'aws-cdk-lib/aws-applicationautoscaling';
 import { Cluster, ContainerImage, FargatePlatformVersion, FargateTaskDefinition, LogDrivers } from 'aws-cdk-lib/aws-ecs';
 import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 import { ScheduledFargateTask } from 'aws-cdk-lib/aws-ecs-patterns';
+import { Rule } from 'aws-cdk-lib/aws-events';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
 
 export class AwsEcsTriggeredTaskAlertsStack extends Stack {
@@ -12,7 +13,6 @@ export class AwsEcsTriggeredTaskAlertsStack extends Stack {
 
     const cluster = new Cluster(this, 'Cluster', {
       clusterName: 'fargate-cluster-example',
-      containerInsights: true,
       enableFargateCapacityProviders: true,
     });
 
@@ -48,6 +48,28 @@ export class AwsEcsTriggeredTaskAlertsStack extends Stack {
       scheduledFargateTaskDefinitionOptions: { taskDefinition },
       schedule: Schedule.cron({ minute: '0/30' }), // trigger task every half an hour
       platformVersion: FargatePlatformVersion.LATEST,
+    });
+
+    new Rule(this, 'TaskExitedRule', {
+      description: 'Rule for events indicating an ECS task exited with one of a specified list of exit codes.',
+      eventPattern: {
+        detail: {
+          clusterArn: [cluster.clusterArn],
+          containers: {
+            exitCode: [
+              1,
+              137,
+              139,
+              255
+            ],
+          },
+          lastStatus: ['STOPPED'],
+          stoppedReason: ['Essential container in task exited'],
+          taskDefinitionArn: [taskDefinition.taskDefinitionArn],
+        },
+        detailType: ['ECS Task State Change'],
+        source: ['aws.ecs'],
+      },
     });
   }
 }
