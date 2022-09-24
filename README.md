@@ -15,6 +15,8 @@ At a high level, this repository consists of the following:
 
 The email address for the SNS subscription is configured using env var `ALERT_EMAIL_ADDRESS`.
 
+![Architecture Diagram](docs/architecture_diagram.svg)
+
 ## Usage
 
 This setup automatically invokes the ECS Fargate task periodically - set to every minute at the time of writing. Whenever the container exits with a [common failure code](https://aws.amazon.com/premiumsupport/knowledge-center/ecs-task-stopped/), email will be broadcasted to whichever address is set using env var `ALERT_EMAIL_ADDRESS`.
