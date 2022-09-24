@@ -5,7 +5,9 @@ import { Cluster, ContainerImage, FargatePlatformVersion, FargateTaskDefinition,
 import { DockerImageAsset } from 'aws-cdk-lib/aws-ecr-assets';
 import { ScheduledFargateTask } from 'aws-cdk-lib/aws-ecs-patterns';
 import { Rule } from 'aws-cdk-lib/aws-events';
+import { SnsTopic as SnsTopicEventsTarget } from 'aws-cdk-lib/aws-events-targets'
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
+import { Subscription, SubscriptionProtocol, Topic } from 'aws-cdk-lib/aws-sns';
 
 export class AwsEcsTriggeredTaskAlertsStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -51,17 +53,17 @@ export class AwsEcsTriggeredTaskAlertsStack extends Stack {
       platformVersion: FargatePlatformVersion.LATEST,
     });
 
-    new Rule(this, 'TaskExitedRule', {
+    const taskExitedRule = new Rule(this, 'TaskExitedRule', {
       description: 'Rule for events indicating an ECS task exited with one of a specified list of exit codes.',
       eventPattern: {
         detail: {
           clusterArn: [cluster.clusterArn],
           containers: {
             exitCode: [
-              1,
-              137,
-              139,
-              255
+              1,    // application error
+              137,  // sigkill force exit
+              139,  // segmentation fault
+              255,  // container entrypoint cmd failed
             ],
           },
           lastStatus: ['STOPPED'],
@@ -72,5 +74,17 @@ export class AwsEcsTriggeredTaskAlertsStack extends Stack {
         source: ['aws.ecs'],
       },
     });
+
+    const alertTopic = new Topic(this, 'AlertTopic');
+
+    new Subscription(this, 'EmailSubscription', {
+      endpoint: String(process.env.ALERT_EMAIL_ADDRESS),
+      protocol: SubscriptionProtocol.EMAIL,
+      topic: alertTopic,
+    });
+
+    const alertTopicTarget = new SnsTopicEventsTarget(alertTopic);
+
+    taskExitedRule.addTarget(alertTopicTarget);
   }
 }
