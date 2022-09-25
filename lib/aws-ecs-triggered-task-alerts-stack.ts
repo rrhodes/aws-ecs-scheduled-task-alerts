@@ -19,11 +19,11 @@ export class AwsEcsTriggeredTaskAlertsStack extends Stack {
       enableFargateCapacityProviders: true,
     });
 
+    const ecsServicePrincipal = new ServicePrincipal('ecs-tasks.amazonaws.com');
+
     const taskExecutionPolicy = ManagedPolicy.fromAwsManagedPolicyName(
       'service-role/AmazonECSTaskExecutionRolePolicy'
     );
-
-    const ecsServicePrincipal = new ServicePrincipal('ecs-tasks.amazonaws.com');
 
     const taskExecutionRole = new Role(this, 'TaskExecutionRole', {
       assumedBy: ecsServicePrincipal,
