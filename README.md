@@ -38,3 +38,9 @@ To deploy the application and infrastructure to AWS, run
 ```sh
 cdk deploy
 ```
+
+To delete the application and infrastructure from AWS, run
+
+```sh
+cdk destroy
+```
